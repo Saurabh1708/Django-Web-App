@@ -1,0 +1,67 @@
+{% extends "basic/basic_base.html" %}
+
+{% block body_block %}
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <div class="jumbotron">
+    <h1 id='1'></h1>
+  </div>
+<div id="supplier">
+<!-- To display the Supplier Details -->
+
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+  $(document).ready(function(){
+    //getting the url of the same page
+    var url=window.location.href;
+
+    //console.log(url)
+    ind=url.lastIndexOf("supplier");
+
+    //console.log(ind);
+    indnew=url.lastIndexOf("/");
+
+    //getting primary key of supplier object
+    var x=url.substring(ind+9, indnew);
+    //console.log(x);
+
+    $.get('http://127.0.0.1:8000/api/supplier/' + x + "/", function(data, status){
+      console.log(data)
+
+      //adding the details as a list
+      var details="<ul>";
+      var d=data['Supplier_Details'][0];
+      var supplier=  "<li> <label>Supplier:  </label> "+ data.first_name+" "+data.last_name + "</li>"
+      var mobile_1=  "<li> <label>Mobile Number 1: </label> "+ data.mobile_1 + "</li>"
+      var mobile_2=  "<li> <label>Mobile Number 2: </label> "+ data.mobile_2 + "</li>"
+      var mobile_3=  "<li> <label>Mobile Number 3: </label> "+ data.mobile_3 + "</li>"
+      var email="<li> <label>Email: </label> "+ data.email + "</li>"
+      var type="<li> <label>Supplier Type: </label> "+ data.supplier_type + "</li>"
+      var active=  "<li> <label>Active:  </label> "+ data.is_active + "</li>"
+      var created =  "<li> <label>Created At:  </label> "+ data.created_at + "</li>"
+      var updated =  "<li> <label>Updated At:  </label> "+ data.updated_at + "</li>"
+      var by="<li> <label>Created By:  </label> "+ data.created_by_name + "</li> "
+      var channel="<li> <label>Creation Channel:  </label> "+ data.creation_channel + "</li> "
+      var add_1="<li> <label>Address 1:  </label> "+ d.address_1 + "</li>";
+      var add_2="<li> <label>Address 2:  </label> "+ d.address_2 + "</li>";
+      var city="<li> <label>City:  </label> "+ d.city + "</li>";
+      var state="<li> <label>State:  </label> "+ d.state + "</li>";
+      var pincode="<li> <label>Pincode:  </label> "+ d.pincode + "</li>";
+      var opening_time="<li> <label>Opening Time:  </label> "+ d.opening_time + "</li>";
+      var closing_time="<li> <label>Closing Time:  </label> "+ d.closing_time + "</li></ul>";
+
+
+      details+=supplier+mobile_1+mobile_2+mobile_3+email+type+ active+ created + updated + by+ channel+ add_1+add_2+city+state+pincode+opening_time+closing_time+"</ul>"
+      console.log(data)
+      //rendering the html using JQuery
+      $('#supplier').html(details);
+      //adding name to the header
+      $('#1').text(data.first_name+ " "+ data.last_name);
+
+    });
+
+  });
+
+</script>
+
+{% endblock %}

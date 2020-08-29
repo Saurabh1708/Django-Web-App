@@ -1,0 +1,291 @@
+{% extends "basic/basic_base.html" %}
+
+{% block body_block %}
+{%if user.is_authenticated %}
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+  <div class="jumbotron" style="text-align:center">
+
+    <!--Contains the Product Name-->
+    <h1 id='1'></h1>
+
+  </div>
+
+  <br>
+  <main class="container">
+
+    <!-- Left Column / Headphones Image -->
+    <div class="left-column" id="images" style="max-width:640" align='left'>
+    <img src="" alt="" height='480' width='480' id ='img'>
+
+    </div>
+
+
+    <!-- Right Column -->
+    <div class="right-column">
+
+      <!-- Product Description -->
+      <div class="product-description">
+        <h1 id='product_name'></h1>
+        <p id='product_tagline'></p>
+      </div>
+
+      <!-- Product Configuration -->
+      <div class="product-configuration">
+
+        <!-- Product Images-->
+
+
+        <!-- Supplier Details -->
+        <div class="supplier-details">
+          <h2 id="supplier_name"> </h2>
+          <label>Timings: </label><span id="start"></span> <br>
+
+          <!-- Accomodation is the availability of the no of seats at the venue -->
+          <label>Accomodation: </label><span id="acco"></span><br>
+            <label>Address: </label><span id="address"></span>
+          <div>
+
+      </div>
+
+      <!-- Product Pricing -->
+      <div class="product-price">
+        <span id="price"></span>
+        <button type="button" id="cart"  class="btn btn-default btn-sm">
+          <span class="glyphicon glyphicon-shopping-cart"></span> Add to cart
+        </button>
+      </div>
+
+      <div class="quantity">
+        <h2 > </h2>
+        <label>Quantity: </label><span></span>
+
+        <!-- Drop down list of quantity-->
+        <select id="quantity">
+          <option value="1" selected>1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+
+        </select>
+
+        <div>
+
+    </div>
+
+    </div>
+    <br>
+    <div class="product-images">
+      <div class="image-choose">
+
+<!-- Adding prev and next buttons to the view the images -->
+      <input type='button' value='PREVIOUS' id='prev' name="prev" style="color:blue">
+
+<input type="button" value="NEXT" id="next" name="next" style="color:blue" >
+
+
+
+      </div>
+
+    </div>
+  </main>
+
+<div id="product">
+
+<!-- To display the list of products and some of their details -->
+
+</div>
+{%else%}
+<div class="container">
+  <h1>Please Login <a href="{% url 'login' %}"> Here </a> To continue!</h1>
+
+</div>
+
+{%endif%}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+  var product_details_id=0;
+  var cart_id={{cart.id}};
+  var currDate=new Date();
+
+  $(document).ready(function(){
+    // link to the present page
+    var url=window.location.href;
+    ind=url.lastIndexOf("products");
+    indnew=url.lastIndexOf("/");
+    //finding the primary key of the object
+    var x=url.substring(ind+9, indnew);
+    //console.log(x);
+    var qty=1;
+
+
+
+
+    $.get('http://127.0.0.1:8000/api/products/' + x + "/", function(data, status){
+      //details contains the main details of the products. Click on the link to get full details
+      var details="<ul>";
+      //Product_Details is nested within the product serializer which is why the slicing at 0 index
+      var d=data['Product_Details'][0]
+
+      images=d['img']
+      image_url_list=[];
+      //assigning values for cart functionality
+      product_details_id=data['Product_Details'][0].ID
+
+      for( i in images)
+      {
+        image_url=images[i].image
+        image_url_list[i]=image_url;
+      }
+
+      $('img').attr("src", image_url_list[0])
+
+      $('#1').text(data.product_name)
+      $("#product_name").text(data.product_name);
+      $("#product_tagline").text(data.tagline);
+
+
+//converting time to presentable form on the webpage
+      var start = new Date(d["start_time"]);
+
+      var start_hours = start.getHours() // get hours from the time
+      var mer="AM"; //denotes AM or PM
+      if(start_hours >= 12)
+        {
+            mer="PM";
+            start_hours-=12;
+
+        }
+
+      var start_min = start.getMinutes() //getting minutes
+
+      var start_time=start_hours + ":" + start_min + " "+ mer ;
+
+      var end = new Date(d["end_time"]);
+      var end_hours=end.getHours()
+      var end_min=end.getMinutes()
+      if(end_hours <12)
+      {
+        mer="AM";
+      }
+      else {
+        mer="PM";
+        end_hours-=12;
+
+      }
+      var end_time=end_hours + ":" + end_min + " " + mer ;
+
+      var end=start_time +" To " +end_time;
+
+      $("#start").text(end);
+      //$("#end").text(d["end_time"]);
+      $("#acco").text(d["quantity"]);
+
+      supplier_id=data['Product_Details'][0].supplier_id ;
+      supplier_url="/api/supplier/"+ String(supplier_id)
+      var add="";
+
+    //ajax call to get the suppplier details such as supplier address and supplier quantity
+      $.ajax({
+        method: "GET",
+        url: supplier_url,
+        data: {},
+        success: function(supp_data, status){
+          var pincode=supp_data['Supplier_Details'][0].pincode;
+          var state=supp_data['Supplier_Details'][0].state;
+          var city=supp_data['Supplier_Details'][0].city;
+          add+=String(pincode)+" "+ city+" "+state;
+          $("#address").text(add);
+        },
+        error: function (response){
+          console.log(response);
+        }
+      })
+
+
+
+      var price=d['price'][0].total_price;
+      $('#price').append("&#8377;");
+      $('#price').append(price);
+
+
+   var curimg = 0;
+   var numimg = image_url_list.length;
+
+
+
+//adding functionality to the next button
+//on clicking next, the url of the image changes
+//similarly for prev buttons
+ $('#next').on('click', function(){
+   var im=$('#img')
+
+       if(curimg < numimg-1){
+       $('img').attr("src", image_url_list[curimg+1]);
+       curimg = curimg + 1;
+      }
+
+ });
+
+ $('#prev').on('click',function(){
+
+   var im=$('#img')
+
+   if(curimg>0) {
+
+   $('#img').attr("src", image_url_list[curimg-1]);
+   curimg = curimg - 1;
+ }
+
+ })
+
+
+// whenever any value of quantity is clicked the qty value is changed
+ $("#quantity").on("change", function(){
+   qty=$(this).val();
+
+
+ })
+
+
+ // Adding add to cart functionality
+ $('#cart').on("click", function(){
+
+   //adding send_data to post method and create a new database object
+   var send_data={'product_details_id': product_details_id, "cart_id": cart_id, "quantity": qty }
+
+
+   $.ajax({
+
+     url: "/api/cart_item/", //url of cart_items api where post is called
+     method:"POST",
+     data: send_data, //defines the data that is sent
+     beforeSend: function (xhr) {
+       xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+   },
+     success: function(data, status){
+       alert("Item Added to Cart!");
+     },
+     error: function(response){
+       console.log(response);
+     }
+
+
+
+   });
+
+
+ })
+
+
+
+    });
+
+  });
+
+</script>
+
+{% endblock %}

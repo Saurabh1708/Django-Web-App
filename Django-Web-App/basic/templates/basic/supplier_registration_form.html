@@ -1,0 +1,23 @@
+{% extends "basic/basic_base.html" %}
+{% load static %}
+
+{% block body_block %}
+
+<div class="jumbotron">
+
+<!-- Rendering Registration form for suppliers -->
+  <form method="post" enctype= "multipart/form-data">
+    {% csrf_token %}
+
+    {{supplier_form.as_p}}
+    {{supplier_details_form.as_p}}
+    <input type="submit" value="Register" >
+
+
+  </form>
+
+
+
+
+</div>
+{%endblock%}

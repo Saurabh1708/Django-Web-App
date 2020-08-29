@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-static-top">
+      <ul class="nav navbar" >
+      <li><a class="navbar-brand" href="{% url "index" %}"> Workoplex </a></li>
+      <li> <a class="navbar-brand" href="{% url "basic:register" %}"> Register </a> </li>
+      <li> <a class="navbar-brand" href="{% url "admin:index" %}"> Admin</a></li>
+      <li> <a class="navbar-brand" href="http://127.0.0.1:8000/api/"> API</a></li>
+      <li> <a class="navbar-brand" href="{% url "basic:products" %}"> Products</a></li>
+      {% if user.is_authenticated %}
+      <li> <a class="navbar-brand" href="/logout"> Logout</a></li>
+      {% else%}
+      <li> <a class="navbar-brand" href="/login"> Login</a></li>
+      {% endif %}
+     <li> <a  class="navbar-brand" href="{% url "basic:cart" %}" >
+          <span class="glyphicon glyphicon-shopping-cart"></span> Shopping Cart
+        </a></li>
+
+
+
+        </ul>
+      </nav>
+
+
+      {% block body_block %}
+
+      {% endblock %}
+  </body>
+</html>

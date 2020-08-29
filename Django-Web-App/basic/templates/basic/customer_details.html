@@ -1,0 +1,21 @@
+{% extends "basic/basic_base.html" %}
+
+{% block body_block %}
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<div class="jumbotron">
+
+    <h1> Customer Details : </h1>
+
+</div>
+<div class="">
+  <p>ID: {{customer.id}}</p>
+  <p>Name : {{customer.user.first_name}}</p>
+  <p>Email: {{customer.user.email}}</p>
+  <p>Active: {{customer.user.is_active}}</p>
+  <p>Mobile No. :{{customer.mobile_1}}</p>
+  <p>Last Updated: {{customer.updated_at}}</p>
+
+
+</div>
+
+{% endblock %}

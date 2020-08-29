@@ -1,0 +1,22 @@
+{% extends "basic/basic_base.html" %}
+
+{% block body_block %}
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<div class="jumbotron">
+
+<h1> List of Customers: </h1>
+
+</div>
+
+<div class="">
+  <ol>
+    {% for c in customer_list %}
+
+    <!--Link to Cutomer details-->
+    <li><a href="{{c.id}}">{{c.user.first_name}} {{c.user.last_name}}</a></li>
+    {% endfor %}
+
+  </ol>
+</div>
+
+{% endblock %}

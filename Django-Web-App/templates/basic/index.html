@@ -1,0 +1,20 @@
+{% extends "basic/base.html" %}
+
+{% block body_block  %}
+
+<div class="jumbotron" style="text-align:center">
+
+  <h1>Welcome to  Workplex !</h1>
+
+
+</div>
+<div class="container" style="text-align:center">
+
+{% if not user.is_authenticated %}
+  <h2>Please  <a href="{% url 'login' %}">login </a>Here to continue!</h2>
+  <span>Not registered yet? <a href="{% url "basic:register" %}"> Click </a> to Register!</span>
+  {% else %}
+  <h2>Continue to the <a href="{% url 'basic:products' %}">Products</a> Page</h2>
+</div>
+{%endif%}
+{% endblock %}

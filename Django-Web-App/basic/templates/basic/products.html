@@ -1,0 +1,556 @@
+{% extends "basic/basic_base.html" %}
+
+{% block body_block %}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+  <div class="jumbotron" style="text-align:center">
+
+    <h1> Welcome to Products page !</h1>
+
+  </div>
+  <div class="container-fluid" style="margin:auto">
+    <div class="row">
+      <section class="site-filter" >
+        <div class="col-sm-1 col-1" id='filter'>
+          <div class="form-group">
+              <label for="pincodes">Pincodes</label>
+                  <select class="form-control" id="pincodes"> <!-- Contains Drop down list of Pincodes-->
+                  </select>
+          </div>
+         </div>
+        <div class="col-sm-1 col-1" id='filter'>
+            <div class="form-group">
+              <label for="city">City</label>
+               <select class="form-control" id="city" > <!-- Contains Drop down list of Cities-->
+               </select>
+            </div>
+          </div>
+
+          <div class="col-sm-1 col-1" id='filter'>
+             <div class="form-group">
+               <label for="state">State</label>
+                <select class="form-control" id="state"> <!-- Contains Drop down list of States-->
+                </select>
+             </div>
+           </div>
+
+           <div class="col-sm-1 col-1" id='filter'>
+              <div class="form-group">
+                <label for="supplier_type">Supplier Type</label>
+                 <select class="form-control" id="supplier_type"> <!-- Contains Drop down list of Supplier Types-->
+                 </select>
+              </div>
+            </div>
+
+            <div class="col-sm-1 col-1" id='filter'>
+               <div class="form-group">
+                 <label for="supplier">Suppliers</label>
+                  <select class="form-control" id="supplier"> <!-- Contains Drop down list of Suppliers-->
+                  </select>
+               </div>
+             </div>
+
+
+                          <div class="col-sm-1 col-1" id='filter'>
+                             <div class="form-group">
+                               <label for="price">Prices</label></br>
+                               <select class="form-control" id="pricing"> <!-- Contains Drop down list of Price range-->
+                               </select>
+                             </div>
+                           </div>
+
+
+            <div class="col-sm-1 col-1" id='filter'>
+               <div class="form-group">
+                 <label for="Search">Search</label></br>
+                  <input type="text" name="search" value="" id='search'>
+                  <input type="button" name="" value="submit" id='submit'> <!-- Contains Search bar -->
+               </div>
+             </div>
+
+
+
+      </section>
+
+    </div>
+  </div>
+
+
+<div id="products">
+
+<!-- To display the list of products and some of their details -->
+
+
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+
+//taking empty dictionary to get sending data
+  var send_data={};
+  // url to retrieve the data
+    var url="/api/products/"; //url to hit api and extract data of products
+
+  $(document).ready(function(){
+
+    //Resets all filters
+    resetFilters();
+
+    //Brings all products with no filtering
+    getAPIData(url);
+
+    //On changing the Pricing filter , the selected value of the price range is added to send_data
+    $("#pricing").on("change", function(){
+      if(this.value=='all')
+      send_data['pricing']='';
+
+      else
+      send_data['pricing']=this.value;
+
+      //Getting API data with the selected price range
+      getAPIData(url);
+
+    })
+
+
+    //On clicking any item in the suppliers list this event occurs and products depending upon supplier name are rendered
+    $('#supplier').on('change', function(){
+
+      //checking if the selected value is all
+      if (this.value=='all')
+      send_data['supplier']="";
+
+      else
+      send_data['supplier']=this.value;
+
+      //getting data from api with the supplier name
+      getAPIData(url);
+    })
+
+    //On clicking any item in the state list this event occurs and products depending upon state name are rendered
+
+    $('#state').on('change', function(){
+
+      //if a state is selected then the pincodes and cities are set to all
+
+      send_data['city']=''
+      send_data['pincodes']=''
+
+      $('#pincodes').val('all');
+      $('#city').val('all');
+
+      //changing send_data to the state selected
+      if(this.value=='all')
+      send_data['state']=''
+      else
+      send_data['state']=this.value;
+
+      //Getting API data with the selected state
+      getAPIData(url);
+    });
+
+    $('#city').on('change', function()
+    {
+      //if a city is selected then the pincodes and states are set to all
+
+        send_data['pincodes']='';
+        send_data['state']='';
+        $('#state').val('all');
+        $('#pincodes').val('all');
+
+        //changing send_data to the city selected
+        if(this.value == 'all')
+          send_data['city']="";
+        else
+          send_data['city']=this.value;
+
+        //Getting API data with the selected city
+        getAPIData(url);
+
+    })
+
+
+    $('#pincodes').on('change', function()
+    {
+      //if a pincode is selected then the states and cities are set to all
+
+      send_data['city']='all'
+      send_data['state']='all'
+      $('#city').val('all');
+      $('#state').val('all');
+
+      //changing pincode to the selected value
+      if(this.value == 'all')
+        send_data['pincodes']="";
+      else
+        send_data['pincodes']=this.value;
+
+        //Getting API data with the selected pincode
+        getAPIData(url);
+
+    })
+
+    // action performed on selecting a supplier type
+    $('#supplier_type').on('change', function(){
+
+      if (this.value === 'all')
+        send_data['supplier_type']=''
+      else
+        send_data['supplier_type']=this.value;
+
+      //Getting API data with the selected supplier type
+      getAPIData(url)
+    })
+
+
+
+function resetFilters()
+{
+
+// To reset all filters
+  $('#supplier_type').val('all')
+  getSupplierTypes('all');
+
+  $('#pincodes').val("all");
+  getPincodes('all');
+
+  $('#city').val("all");
+  getCities('all');
+
+  $('#state').val('all');
+  getStates('all');
+
+  $('#supplier').val('all');
+  getSuppliers();
+
+  $('#pricing').val('all');
+  getPricingSlabs();
+
+  $('#search').val('');
+
+  send_data['supplier']='';
+  send_data['state']='';
+  send_data['pincodes']='';
+  send_data['city']='';
+  send_data['supplier_type']='';
+  send_data['pricing']='';
+  send_data['format']='json';
+}
+
+
+//action performed on clicking submit button for search
+$('#submit').click (function(){
+
+  // resetting all filters to get search query unaffected by filters
+
+  $('#supplier').val('all');
+  $('#supplier_type').val('all')
+  $('#pincodes').val("all");
+  $('#city').val("all");
+  $('#state').val('all');
+  $('#pricing').val('all');
+
+
+  send_data['suppplier']='';
+  send_data['state']='';
+  send_data['pincodes']='';
+  send_data['city']='';
+  send_data['supplier_type']='';
+  send_data['supplier_type']='';
+  send_data['pricing']='';
+  data=$('#search').val();
+
+  //changing url to accomodate search query
+  //String() function converts input data into string
+  var url="/api/products/?search="+String(data);
+
+  getAPIData(url);
+})
+
+function getAPIData(url){
+
+  $.ajax({
+    url: url, //url at which the api data is present
+    method: 'GET', //specifying the method used to access the api
+    data: send_data, //this data is sent to the api model viewset
+    //function which is executed if the get action is performed properly
+    success: function(data,status){
+
+      //console.log(send_data);
+      //creating list of products in the database
+
+
+      //Each value of p is a product in the database
+      $('#products').html('')
+      for( p in data )
+      {
+
+        //Adding product cards to the product div in html
+        //It also makes the entire product card as a clickable link
+        var product_card="<a><div class='card'></div></a>";
+        $('#products').append(product_card);
+
+
+        //Adding the url for the product Details page of the product
+        var  x= data[p].ID
+        x=String(x)
+        var url="/basic/products/"+x;
+        $('a').eq(-1).attr("href", url)
+
+        // checking if the product has product details values and also checking if the product has attached images to it
+      if (data[p]['Product_Details'].length != 0 && data[p]['Product_Details'][0]['img'].length!=0)
+      {
+
+        //iterating for all the images linked to the product
+        for (x in data[p]['Product_Details'][0]['img'])
+        {
+
+          //finding the first default image of the product
+          if(data[p]['Product_Details'][0]['img'][x].is_default_image == true)
+          {
+
+            image_url=data[p]['Product_Details'][0]['img'][x].image;
+            //all images are rendered with the same width
+            img="<img style='width:600px'>"
+            //adding the image to the product card
+            $('.card').eq(-1).append(img);
+            //adding the url to the image
+            $('img').eq(-1).attr("src",image_url);
+
+
+            //since there will ony be 1 default image we are breaking the loop
+            break;
+          }
+        }
+
+      }
+
+            //getting the supplier data for the product by calling the corresponding supplier api
+            supplier_id=data[p]['Product_Details'][0].supplier_id ;
+            supplier_url="/api/supplier/"+ String(supplier_id)
+            var add="";
+
+            //variable to store the supplier data that hass to be added to the product card
+            $.ajax({
+              url: supplier_url,
+              method: "GET",
+              data: {},
+              success: function(supp_data, status){
+                pincode=supp_data['Supplier_Details'][0]['pincode'];
+                city=supp_data['Supplier_Details'][0]['city'];
+                state=supp_data['Supplier_Details'][0]['state'];
+
+                add="<p>" + String(pincode)+ " "+ (city) +" "+(state)+ "</p>";
+
+              },
+              error: function(response){
+                console.log(response);
+              }
+            });
+
+      // adding the product name , tagling, price, description and supplier name to the product card
+      $('.card').eq(-1).append("<h1>" +  data[p].product_name+ "</h1>")
+      $('.card').eq(-1).append("<p>" + data[p].tagline + "</p>")
+      var price_list="<p class='price'>&#8377;" +data[p]['Product_Details'][0]['price'][0]['total_price'] + "</p>";
+      $('.card').eq(-1).append(price_list)
+      $('.card').eq(-1).append("<p>" + data[p].product_description + "</p>")
+      $('.card').eq(-1).append("<p>" +data[p]['Product_Details'][0].supplier_name + "</p>")
+
+
+      }
+
+      console.log("Getting data");
+    },
+    error: function(response){
+      console.log(response);
+    }
+  });
+
+}
+
+// function is used to get the list of suppliers in the dropdown list
+  function getSuppliers(){
+    $.ajax({
+      url: '/api/supplier/' ,
+      method: "GET",
+      data:{},
+      success: function(data, status){
+        //adding select all value to the list
+        var suppliers="<option value='all' selected> All Suppliers</option>";
+        //adding the names of all suppliers into the list
+        for(s in data){
+          suppliers+="<option>" + data[s].first_name +" "+ data[s].last_name + "</option>";
+        }
+
+        //changing the supplier list html
+        $('#supplier').html(suppliers);
+
+      },
+      error: function(response){
+        console.log(response);
+      }
+    })
+  }
+
+
+//function to get the list of supplier types in the drop down list
+  function getSupplierTypes(){
+
+    //url to access the api data for supplier types
+    var url='/api/supplier_type/';
+
+    $.ajax({
+      method: 'GET',
+      url: url,
+      data: {},
+      success: function(data, status){
+        var types="<option value='all' selected> All Types</option>"
+
+        for (t in data){
+          types+="<option>" + data[t].supplier_type +"</option>"
+        }
+        $('#supplier_type').html(types);
+      },
+      error: function(response){
+        console.log(response)
+      }
+    });
+  }
+
+//function to get the list of Pincodes in the drop down list
+   function getPincodes(){
+
+     // url to access api data from pincodes
+      var url="/api/pincode/";
+      $.ajax({
+           method: 'GET',
+           url: url,
+           data: {},
+           success: function(data, status){
+
+             var pincode_options="<option value='all' selected> All Pincode</option>";
+             for ( p in data){
+               pincode_options+="<option>" + data[p].pincode + "</option>";
+             }
+
+             $("#pincodes").html(pincode_options)
+           },
+           error: function(response){
+             console.log(response);
+           }
+
+         });
+
+    }
+
+
+//function to get the list of cities in the drop down list
+    function getCities(){
+
+      //url to get data from city api
+      var url='/api/city/';
+
+      $.ajax({
+        url: url,
+        method:"GET",
+        data: {},
+        success: function(data, status){
+          var city_options="<option value='all' selected> All Cities</option>";
+
+          for (c in data){
+            //console.log(data[c].city);
+            city_options+="<option>"+ data[c].name+  "</option>";
+          }
+
+          $('#city').html(city_options);
+
+        },
+        error: function(response){
+          console.log(response);
+        }
+      });
+    }
+
+//function to the list of states in the drop down list
+    function getStates(){
+
+      //url to get data from state api
+      var url='/api/state/';
+
+      $.ajax({
+        url: url,
+        method:"GET",
+        data: {},
+        success: function(data, status){
+
+          //adding all states value to the state filter
+          var state_options="<option value='all' selected> All States</option>";
+
+          for (s in data){
+            state_options+="<option>"+ data[s].name+  "</option>"
+          }
+
+          $('#state').html(state_options);
+
+        },
+        error: function(response){
+          console.log(response);
+        }
+      });
+    }
+
+  function getPricingSlabs(){
+
+      var url='/api/pricing/';
+      $.ajax({
+        url: url,
+        method:"GET",
+        data: {},
+        success: function(data, status){
+
+          var mx=0;
+          var mn=Number.POSITIVE_INFINITY;
+          var cnt=5;
+          for ( p in data) {
+            total=data[p].total_price;
+            //getting max and min value from the price values to calculate the price slabs
+            mx=Math.max(mx, total);
+            mn=Math.min(mn, total);
+
+          }
+          mx=parseFloat(mx, 10); //max price converted to floating value
+          mn=parseFloat(mn, 10); //min value converted to floating value
+          slab_size=(mx-mn)/5; //finding the cost of each slab
+
+          //adding all price slabs options to the filter
+          var price_options="<option value='all' selected> All Prices</option>";
+
+          //starting with the minimum value
+          start=mn;
+
+          while( cnt >0){
+            //Range of values added to the filter is between start and fin
+            var fin=start+slab_size;
+            price_options+="<option>"+ start.toFixed(2) + "-" + fin.toFixed(2) + "</option>";
+
+            //increasing start value after each iteration
+            start+=slab_size;
+            cnt--;
+          }
+
+          //finally adding html to the pricing filter 
+          $('#pricing').html(price_options);
+
+        },
+        error: function(response){
+          console.log(response);
+        }
+
+
+      })
+    }
+
+})
+</script>
+
+{% endblock %}

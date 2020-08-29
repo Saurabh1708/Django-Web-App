@@ -1,0 +1,29 @@
+{% extends "basic/basic_base.html" %}
+{% load static %}
+
+{% block body_block %}
+
+<div class="jumbotron">
+
+<h1 style="text-align:center">Hello {{request.user.first_name}}. Please add your details! </h1>
+
+</div>
+
+  <!--Rendering Form for customer registration-->
+
+  {% if user.is_authenticated %}
+<div class="container">
+  <form method="post" enctype= "multipart/form-data">
+    {% csrf_token %}
+    <p>{{ customer_form.as_p }}</p>
+    <p>{{customer_details_form.as_p}}</p>
+      <input type="submit" value="Register" >
+  </form>
+{% else%}
+<h1>Please Login <a href="{% url 'login' %}">Here!</a> </h1>
+{%endif%}
+</div>
+
+
+
+{% endblock %}

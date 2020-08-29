@@ -1,0 +1,63 @@
+{% extends "basic/basic_base.html" %}
+
+{% block body_block %}
+<div class="jumbotron">
+<h1>Welcome to Supplier List Page:</h1>
+</div>
+
+<div id="suppliers">
+  <!-- Displays the list of Suppliers along with the links to their Details-->
+
+
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+  $(document).ready(function(){
+
+    //getting data from supplier api
+    $.get("/api/supplier/", function(data, status){
+
+        var supplier_list="<ul>";
+
+        // for each supplier object in the model data is retireved
+        for (s in data){
+          // adding supplier details to the supplier_list
+
+          var details="<ul><li> <label>Mobiile Number 1: </label> "+ data[s].mobile_1 + "</li>" +
+                    "<li> <label>Mobile Number 2: </label> "+ data[s].mobile_2 + "</li>" +
+                    "<li> <label>Mobiile Number 3: </label> "+ data[s].mobile_3 + "</li>" +
+                    "<li> <label>Email: </label> "+ data[s].email + "</li>" +
+                    "<li> <label>Supplier Type: </label> "+ data[s].supplier_type + "</li>" +
+                    "<li> <label>Active: </label> "+ data[s].is_active + "</li>" +
+                    "<li> <label>Created At:  </label> "+ data[s].created_at + "</li>" +
+                    "<li> <label>Updated At:  </label> "+ data[s].updated_at + "</li>" +
+                    "<li> <label>Creation Channel:  </label> "+ data[s].creation_channel + "</li> "+
+                    "<li> <label>Created By:  </label> "+ data[s].created_by + "</li> "+
+                    "<li> <label>ID:  </label> "+ data[s].ID + "</li> </ul>";
+
+
+          //getting primary key value of the supplier object
+          var x=data[s].ID;
+          x=x.toString();
+          //creating supplier details url
+          url="http://127.0.0.1:8000/basic/supplier/"+x;
+          //console.log(url)
+          //adding all the details to the supplier_list
+          supplier_list+="<li> <label>Name: </label><a href="+url+">"  + data[s].first_name + " "+ data[s].last_name + "</a>"+"</li>" +details+ "</br>"
+          supplier_list="<p>"+ supplier_list+"</p>";
+        }
+
+        supplier_list+="</ul>"
+        //rendering html of the supplier list
+        $('#suppliers').html(supplier_list);
+
+        console.log("Getting Data");
+
+
+
+    });
+  });
+
+</script>
+
+{% endblock %}

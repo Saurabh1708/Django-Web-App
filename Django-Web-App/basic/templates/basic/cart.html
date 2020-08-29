@@ -1,0 +1,169 @@
+{% extends "basic/basic_base.html" %}
+
+{% block body_block %}
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <div class="jumbotron" style="text-align:center">
+
+      <h1> Welcome to your Cart {{cart.customer_id.user.first_name}}!</h1>
+    </div>
+
+  <!--checking if the user is authenticated then render the cart otherwise tell him to login    -->
+{% if  user.is_authenticated %}
+
+  <div id="products">
+
+  <!-- To display the list of products in the cart -->
+
+  </div>
+
+  <!-- Telling the user to login before viewing the cart-->
+{% else %}
+<h2>Please login<a href='{% url "login" %}'>Here!</a></h2>
+
+{% endif %}
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script >
+
+
+
+//when body is entirely loaded along with the dyncamic elements
+// we add the delete functionality to the buttons
+  $(document).ready(function(){
+
+    $('body').on('click', '.delete', function(){
+
+      var id=$(this).attr('id');
+      $.ajax({
+        url: "/api/cart_item/"+String(id)+"/", //url from which cart item is deleted
+        method: "DELETE",
+        data: {},
+        beforeSend: function (xhr) {
+          xhr.setRequestHeader("X-CSRFToken", '{{ csrf_token }}');
+      },
+        success: function(result, status){
+
+          //alerts the user that item is deleted
+          alert("Item deleted from cart!")
+          //reloads the webpage with fresh data
+          location.reload();
+        },
+        error: function(response){
+          console.log(response);
+        }
+
+      })
+})
+
+
+//cart id of the current user which is logged in
+  var currentuser={{cart.id}}
+  //console.log(currentuser);
+    $.ajax({
+      url: "/api/cart/"+String(currentuser),// url of the cart of the user
+      method:'GET',
+      data:{},//data to be sent to the api before getting the data
+      success: function(data, status) {
+
+        // Getting the list of items in the user's cart as an items array
+        var items=data['cart_items']
+
+        // Iterating over all the products in the cart and rendering them
+        for (p in items){
+
+
+          //getting product_details_id to be used for product url
+          var product_detail_id=items[p].product_details_id
+          var product_url="/api/product_details/"+String(product_detail_id)
+
+          //adding a product card corresponding to the item
+          var product_card="<div class='card'></div>";
+          $('#products').append(product_card);
+
+
+          $.ajax({
+            url: product_url, // getting info about the product from the api
+            method: "GET",
+            data: {},
+            async: false,// this ensures that rest of the code executes after this ajax call and not asynchronously
+            success: function(result, status){
+
+              //checking if the product has any image or not
+              if(result['img'].length!=0){
+
+                // Iterating over all the images corresponding to the product
+                for( x in result['img']){
+
+                  //checking for a default image in the product
+                  //if there are multiple default images, then render the first one and break from the loop
+                  if(result['img'][x].is_default_image){
+
+                    //image url to be used to display the url
+                    var image_url=result['img'][x].image
+                    //img tag of html
+                    var img="<a><img style='width:600px'></a>"
+                    //adding img tag to html body
+                    $('.card').eq(-1).append(img);
+                    //adding url to the img tag
+                    $('img').eq(-1).attr("src", image_url);
+                    var qty=String(items[p].quantity)
+                    $('.card').eq(-1).append("<h3 class='qty'><label>Quantity:"+qty+" </label></h3>")
+
+                    //breaking from the loop after having found out the default image
+                    break;
+                  }
+
+                }
+
+                //getting product Name
+                var product_name=result['product_name'];
+
+                // adding all the info about the product in the product card
+                $('.card').eq(-1).append("<h1>" +  product_name + "</h1>")
+                var price_list="<p class='price'>&#8377;" +result['price'][0]['total_price'] + "</p>";
+                $('.card').eq(-1).append(price_list)
+                $('.card').eq(-1).append("<p>" +result.supplier_name + "</p>")
+
+                //adding hyperlink to the product details page of the product
+                var current_product_url="/basic/products/"+String(result.product_id)
+                $('a').eq(-1).attr("href", current_product_url);
+                var qty=String(list_qty[x]);
+                //adding delete from cart button
+                var delete_button='<button class="delete"><i class="fa fa-trash"></i></button>'
+                $('.card').eq(-1).append(delete_button)
+                $('.delete').eq(-1).attr("id", items[p].id)
+
+              }
+
+            },
+            error: function(response){
+                console.log(response);
+            }
+          });
+
+
+
+        }
+
+        //adding the shopping cart total
+        var total= "<section id='shoppingCart'><h2 align='center'>shopping cart total:  <span id='cartSum'>"+ data['total_price']+ "</span></h2> </section>"
+        $('#products').append(total);
+
+
+      },
+
+      error:function(response){
+        console.log(response);
+      }
+
+    });
+
+
+
+  })
+
+
+</script>
+{% endblock %}
